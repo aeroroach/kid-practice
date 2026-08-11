@@ -241,34 +241,39 @@ const QUIZ_DATA = [
 
   // --- Topic 2: Sort leaves into groups (size, colour, shape) ---
   {
-    q: "Mia is sorting leaves into two groups. She put these two together: 🍃🍃. Which leaf belongs with them?",
+    q: "Mia is sorting leaves by COLOUR. Her green group already has these: 🍀 and 🌿. Which leaf goes in the green group?",
     options: [
       { label: "Yellow leaf", shape: { t: "emoji", e: "🍂", s: 2 } },
       { label: "Red leaf",    shape: { t: "emoji", e: "🍁", s: 2 } },
       { label: "Green leaf",  shape: { t: "emoji", e: "🍃", s: 2 } }
     ],
     correct: 2,
-    note: "The green leaf belongs with the other green leaves. Mia grouped them by colour!"
+    note: "The green leaf goes in the green group. 🍃 is green like 🍀 and 🌿 — Mia sorts by colour!"
   },
   {
-    q: "Ben put the smallest leaf first. Which leaf comes NEXT?",
+    q: "Ben lined up his leaves from SMALLEST to BIGGEST. One leaf is in the WRONG place. Which one?",
+    prompt: [
+      { t: "emoji", e: "🍃", s: 1, label: "Small" },
+      { t: "emoji", e: "🍃", s: 3, label: "Big" },
+      { t: "emoji", e: "🍃", s: 2, label: "Middle" }
+    ],
     options: [
       { label: "Small leaf",  shape: { t: "emoji", e: "🍃", s: 1 } },
       { label: "Middle leaf", shape: { t: "emoji", e: "🍃", s: 2 } },
       { label: "Big leaf",    shape: { t: "emoji", e: "🍃", s: 3 } }
     ],
-    correct: 1,
-    note: "The middle leaf comes next! Smallest, then middle, then biggest."
+    correct: 2,
+    note: "The BIG leaf is in the wrong place! From smallest to biggest, the big leaf should come LAST."
   },
   {
-    q: "A squirrel 🐿️ is collecting ROUND leaves. Which leaf will he take?",
+    q: "A maple leaf 🍁 is POINTY. Which other leaf is pointy too?",
     options: [
-      { label: "Pointy leaf", shape: { t: "emoji", e: "🍃", s: 2 } },
       { label: "Oval leaf",   shape: { t: "emoji", e: "🌿", s: 2 } },
-      { label: "Round leaf",  shape: { t: "emoji", e: "🍀", s: 2 } }
+      { label: "Round leaf",  shape: { t: "emoji", e: "🍀", s: 2 } },
+      { label: "Pointy leaf", shape: { t: "emoji", e: "🍃", s: 2 } }
     ],
     correct: 2,
-    note: "The round leaf is the circle one. Leaves come in many shapes!"
+    note: "The pointy leaf is pointy like the maple leaf. Leaves come in many shapes!"
   },
 
   // --- Topic 3: Parts of a plant ---
@@ -319,14 +324,14 @@ const QUIZ_DATA = [
 
   // --- Topic 8: Measure - taller or shorter than you ---
   {
-    q: "Plant A is TALLER than Plant B. Which plant is SHORTER?",
+    q: "Plant A is TALLER than Plant B. You are the same height as Plant B. Who is taller — you or Plant A?",
     prompt: [
       { t: "emoji", e: "🌳", s: 3, label: "Plant A" },
       { t: "emoji", e: "🌱", s: 2, label: "Plant B" }
     ],
-    options: ["🌳 Plant A is shorter", "They are the same", "🌱 Plant B is shorter"],
-    correct: 2,
-    note: "Plant B is shorter. Taller and shorter tell us how big a plant is!"
+    options: ["🧒 I am taller", "🌳 Plant A is taller", "🤷 We are the same height"],
+    correct: 1,
+    note: "Plant A is taller than you! Plant A is taller than Plant B, and you are as tall as Plant B."
   }
 ];
 
