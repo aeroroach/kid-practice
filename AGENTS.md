@@ -11,6 +11,7 @@
 
 ## UI design tokens
 - Base font ≥ 18px, clean sans-serif. Touch targets ≥ 56px, spacing ≥ 16px.
+- Use native Unicode emojis (no image files, no CSS-drawn shapes) in question text, options, and feedback. Graphic options: one emoji per option via `{ label, shape: { t: "emoji", e: "🌳", s: 1-3 } }`.
 - Palette: soft sky-blue background, emerald green for correct, coral/pastel red for wrong, warm yellow accents. No harsh neon, no dark mode.
 - Cards: centered, `border-radius: 16px`, subtle box-shadow.
 - No `:hover` states (touch screen); `cursor: pointer` only for desktop preview symmetry.
