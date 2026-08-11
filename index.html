@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Science Quiz - Plants and Animals</title>
+<style>
+  :root{
+    --sky:#cdeafc;
+    --card:#ffffff;
+    --ink:#264653;
+    --muted:#6b8490;
+    --correct:#34a853;
+    --wrong:#ff7a70;
+    --yellow:#ffd54f;
+    --shadow:0 6px 18px rgba(38,70,83,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--sky);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    font-size:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+  }
+  .app{width:100%;max-width:760px;flex:1;display:flex;flex-direction:column}
+
+  /* ---------- Header ---------- */
+  header{margin-bottom:20px}
+  .title{
+    font-size:34px;
+    font-weight:800;
+    text-align:center;
+    color:var(--ink);
+    text-shadow:0 2px 0 rgba(255,255,255,.6);
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--muted);
+    font-size:20px;
+    margin-top:4px;
+  }
+  .progress-wrap{
+    margin-top:16px;
+    background:#ffffff;
+    border-radius:999px;
+    height:20px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--yellow);
+    border-radius:999px;
+    transition:width .35s ease;
+  }
+  .qnum{
+    text-align:center;
+    font-size:20px;
+    font-weight:700;
+    margin-top:12px;
+    color:var(--ink);
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:28px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+  }
+  .question{font-size:28px;font-weight:800;line-height:1.3;text-align:center}
+  .prompt{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:40px;
+    padding:10px 0;
+  }
+  .prompt-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .prompt-label{font-size:20px;font-weight:700;color:var(--muted)}
+
+  .options{display:flex;flex-direction:column;gap:16px}
+  .options.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:16px;
+  }
+  .option{
+    appearance:none;
+    border:none;
+    background:#eaf6ff;
+    color:var(--ink);
+    font-family:inherit;
+    font-size:22px;
+    font-weight:700;
+    border-radius:16px;
+    min-height:56px;
+    padding:16px 20px;
+    box-shadow:0 3px 0 rgba(38,70,83,.15);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:background .15s ease,transform .1s ease;
+  }
+  .option:active{transform:scale(.98)}
+  .option.correct{background:var(--correct);color:#fff}
+  .option.wrong{background:var(--wrong);color:#fff}
+  .option.dim{background:#eef2f4;color:#a9b8be;box-shadow:none}
+  .options.locked .option{cursor:default}
+  .opt-shape{display:flex;align-items:flex-end;justify-content:center;min-height:90px}
+  .opt-label{line-height:1.2}
+
+  .shape{display:flex;flex-direction:column;align-items:center}
+
+  /* ---------- Feedback ---------- */
+  .feedback{
+    min-height:70px;
+    border-radius:16px;
+    padding:16px 20px;
+    font-size:21px;
+    font-weight:700;
+    text-align:center;
+    display:none;
+  }
+  .feedback.show{display:block}
+  .feedback.good{background:#e6f6ec;color:#1e7a3c}
+  .feedback.bad{background:#ffebe9;color:#b23a33}
+  .feedback-note{font-weight:500;margin-top:4px}
+  .next{
+    appearance:none;
+    border:none;
+    background:var(--yellow);
+    color:var(--ink);
+    font-family:inherit;
+    font-size:22px;
+    font-weight:800;
+    border-radius:16px;
+    min-height:56px;
+    box-shadow:0 3px 0 rgba(38,70,83,.2);
+    cursor:pointer;
+    display:none;
+    margin-top:16px;
+  }
+  .next.show{display:block}
+
+  /* ---------- Score screen ---------- */
+  .score-screen{display:none;flex-direction:column;align-items:center;gap:20px;text-align:center}
+  .score-screen.show{display:flex}
+  .score-title{font-size:36px;font-weight:800}
+  .stars{font-size:46px;letter-spacing:6px;color:var(--yellow)}
+  .score-text{font-size:26px;font-weight:700}
+  .score-sub{font-size:20px;color:var(--muted)}
+  .try-again{
+    appearance:none;
+    border:none;
+    background:var(--correct);
+    color:#fff;
+    font-family:inherit;
+    font-size:24px;
+    font-weight:800;
+    border-radius:16px;
+    min-height:64px;
+    padding:0 36px;
+    box-shadow:0 3px 0 rgba(38,70,83,.2);
+    cursor:pointer;
+    margin-top:12px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">Science Quiz</div>
+    <div class="subtitle">Plants and Animals</div>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="qnum" id="qnum">Question 1 of 12</div>
+  </header>
+
+  <section class="card" id="quizCard">
+    <div class="question" id="qtext"></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback">
+      <div id="feedbackHead"></div>
+      <div class="feedback-note" id="feedbackNote"></div>
+    </div>
+    <button class="next" id="nextBtn"></button>
+  </section>
+
+  <section class="score-screen" id="scoreScreen">
+    <div class="stars" id="stars"></div>
+    <div class="score-title" id="scoreTitle"></div>
+    <div class="score-text" id="scoreText"></div>
+    <div class="score-sub" id="scoreSub"></div>
+    <button class="try-again" id="tryAgain">Try Again</button>
+  </section>
+</div>
+
+<script>
+/* =========================================================
+   QUIZ_DATA - Grade 1 Science wrap-up: Plants and Animals
+   ---------------------------------------------------------
+   Each question object:
+   - q        : the question text (shown big in the card)
+   - options  : strings, OR { label, shape } objects.
+                shape: { t:"circle"|"triangle"|"leaf"|"plant",
+                         c:color, s:size 1-3, h:height 1-3 }
+   - correct  : index of the right answer
+   - note     : short learning line shown after answering
+   - prompt   : optional shapes shown above the options
+   To change topics, rewrite ONLY this array.
+   ========================================================= */
+
+const QUIZ_DATA = [
+  // --- Topic 1: Name some plants and animals ---
+  {
+    q: "Is a tree a plant or an animal?",
+    options: ["It's a plant", "It's an animal", "It's both"],
+    correct: 0,
+    note: "A tree is a plant. Plants grow from the ground."
+  },
+  {
+    q: "Which one is an animal?",
+    options: ["A flower", "A bird", "A tree"],
+    correct: 1,
+    note: "A bird is an animal. Flowers and trees are plants."
+  },
+
+  // --- Topic 2: Sort leaves into groups (size, colour, shape) ---
+  {
+    q: "Which leaf is the BIGGEST?",
+    options: [
+      { label: "Small leaf", shape: { t: "leaf", c: "#4caf50", s: 1 } },
+      { label: "Big leaf",   shape: { t: "leaf", c: "#4caf50", s: 2 } },
+      { label: "Biggest leaf", shape: { t: "leaf", c: "#4caf50", s: 3 } }
+    ],
+    correct: 2,
+    note: "The biggest leaf is the largest one. Its leaves can be sorted by size!"
+  },
+  {
+    q: "Which leaf is RED?",
+    options: [
+      { label: "Green leaf", shape: { t: "leaf", c: "#4caf50", s: 2 } },
+      { label: "Yellow leaf", shape: { t: "leaf", c: "#f6c445", s: 2 } },
+      { label: "Red leaf",   shape: { t: "leaf", c: "#ef5350", s: 2 } }
+    ],
+    correct: 2,
+    note: "The red leaf looks like a strawberry! Leaves come in many colours."
+  },
+  {
+    q: "Which leaf is ROUND?",
+    options: [
+      { label: "Pointy leaf", shape: { t: "triangle", c: "#4caf50", s: 2 } },
+      { label: "Round leaf",  shape: { t: "circle",   c: "#4caf50", s: 2 } },
+      { label: "Oval leaf",   shape: { t: "leaf",     c: "#4caf50", s: 2 } }
+    ],
+    correct: 1,
+    note: "The round leaf is the circle one. Leaves come in many shapes!"
+  },
+
+  // --- Topic 3: Parts of a plant ---
+  {
+    q: "Which part of a plant grows UNDER the ground?",
+    options: ["Roots", "Flower", "Leaves"],
+    correct: 0,
+    note: "Roots grow under the ground. They hold the plant in the soil."
+  },
+  {
+    q: "What do leaves do for the plant?",
+    options: ["Make food from sunshine", "Bark like a dog", "Wear shoes"],
+    correct: 0,
+    note: "Leaves catch sunshine to make food for the plant."
+  },
+
+  // --- Topic 4: Parts of animals ---
+  {
+    q: "Which animal has wings?",
+    options: ["A bird", "A fish", "A cat"],
+    correct: 0,
+    note: "Birds have wings. They flap them to fly."
+  },
+
+  // --- Topic 5: How animals sense things ---
+  {
+    q: "A dog finds things by smell. Which part does it use?",
+    options: ["Its nose", "Its ears", "Its tail"],
+    correct: 0,
+    note: "Dogs have amazing noses! They smell with their nose."
+  },
+
+  // --- Topic 6: Where animals and plants live ---
+  {
+    q: "Where does a fish live?",
+    options: ["In the water", "In a tree", "Under a rock"],
+    correct: 0,
+    note: "Fish live in the water. They swim all day!"
+  },
+
+  // --- Topic 7: Smell, taste and touch ---
+  {
+    q: "You taste your food with your ____",
+    options: ["Tongue", "Ears", "Elbow"],
+    correct: 0,
+    note: "Your tongue helps you taste yummy food."
+  },
+
+  // --- Topic 8: Measure - taller or shorter than you ---
+  {
+    q: "Which plant is TALLER?",
+    prompt: [
+      { t: "plant", c: "#4caf50", h: 3, label: "Plant A" },
+      { t: "plant", c: "#43a047", h: 1, label: "Plant B" }
+    ],
+    options: ["Plant A is taller", "Plant B is taller", "They are the same"],
+    correct: 0,
+    note: "Plant A is taller. It grows higher than Plant B!"
+  }
+];
+
+/* =========================================================
+   Rendering + scoring logic (do not edit unless asked)
+   ========================================================= */
+
+let idx = 0;
+let score = 0;
+let answered = false;
+
+const qtext = document.getElementById("qtext");
+const promptEl = document.getElementById("prompt");
+const optionsEl = document.getElementById("options");
+const feedbackEl = document.getElementById("feedback");
+const feedbackHead = document.getElementById("feedbackHead");
+const feedbackNote = document.getElementById("feedbackNote");
+const nextBtn = document.getElementById("nextBtn");
+const progressFill = document.getElementById("progressFill");
+const qnumEl = document.getElementById("qnum");
+const quizCard = document.getElementById("quizCard");
+const scoreScreen = document.getElementById("scoreScreen");
+
+function shapeHTML(s){
+  if (s.t === "plant") {
+    const size = 16 + 26 * (s.h || 2);
+    return '<div class="shape">'
+      + '<span class="plant-top" style="width:' + size + 'px;height:' + size + 'px;'
+      + 'background:' + s.c + ';border-radius:60% 60% 20% 20%;display:block"></span>'
+      + '<span class="plant-trunk" style="width:14px;height:14px;background:#8d6e63;display:block"></span>'
+      + '</div>';
+  }
+  const b = 26 * (s.s || 2);
+  if (s.t === "circle") {
+    return '<div class="shape" style="width:' + b + 'px;height:' + b + 'px;background:' + s.c + ';border-radius:50%"></div>';
+  }
+  if (s.t === "triangle") {
+    return '<div class="shape" style="border-left:' + b/2 + 'px solid transparent;border-right:' + b/2 + 'px solid transparent;'
+      + 'border-bottom:' + b + 'px solid ' + s.c + '"></div>';
+  }
+  return '<div class="shape" style="width:' + b + 'px;height:' + b*0.62 + 'px;background:' + s.c
+    + ';border-radius:0 50% 50% 0;transform:rotate(-35deg)"></div>';
+}
+
+function render(){
+  answered = false;
+  const q = QUIZ_DATA[idx];
+  qnumEl.textContent = "Question " + (idx + 1) + " of " + QUIZ_DATA.length;
+  progressFill.style.width = (idx / QUIZ_DATA.length * 100) + "%";
+  qtext.textContent = q.q;
+
+  promptEl.innerHTML = "";
+  if (q.prompt) {
+    q.prompt.forEach(function (s) {
+      promptEl.insertAdjacentHTML("beforeend",
+        '<div class="prompt-item">' + shapeHTML(s) +
+        (s.label ? '<div class="prompt-label">' + s.label + "</div>" : "") + "</div>");
+    });
+  }
+
+  optionsEl.className = "options" + (q.options.some(function (o) { return typeof o !== "string"; }) ? " grid" : "");
+  optionsEl.innerHTML = "";
+  q.options.forEach(function (o, i) {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    if (typeof o === "string") {
+      btn.textContent = o;
+    } else {
+      btn.insertAdjacentHTML("beforeend", '<span class="opt-shape">' + shapeHTML(o.shape) + "</span>");
+      btn.insertAdjacentHTML("beforeend", '<span class="opt-label">' + o.label + "</span>");
+    }
+    btn.addEventListener("click", function () { handle(i); });
+    optionsEl.appendChild(btn);
+  });
+
+  feedbackEl.className = "feedback";
+  feedbackEl.classList.remove("show");
+  nextBtn.classList.remove("show");
+}
+
+function handle(i){
+  if (answered) return;
+  answered = true;
+  const q = QUIZ_DATA[idx];
+  const right = i === q.correct;
+  if (right) score++;
+
+  optionsEl.classList.add("locked");
+  Array.prototype.forEach.call(optionsEl.children, function (b, bi) {
+    if (bi === q.correct) b.classList.add("correct");
+    else if (bi === i) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  feedbackEl.classList.add("show", right ? "good" : "bad");
+  feedbackHead.textContent = right ? "Great job!" : "Good try!";
+  feedbackNote.textContent = q.note;
+
+  const last = idx === QUIZ_DATA.length - 1;
+  nextBtn.textContent = last ? "See my score" : "Next";
+  nextBtn.classList.add("show");
+  progressFill.style.width = ((idx + 1) / QUIZ_DATA.length * 100) + "%";
+}
+
+function showScore(){
+  quizCard.style.display = "none";
+  scoreScreen.classList.add("show");
+  const pct = score / QUIZ_DATA.length;
+  document.getElementById("stars").textContent = pct >= 0.9 ? "Star Star Star" : pct >= 0.6 ? "Star Star" : "Star";
+  document.getElementById("scoreTitle").textContent = pct === 1 ? "Perfect!" : pct >= 0.6 ? "Good work!" : "Keep practicing!";
+  document.getElementById("scoreText").textContent = score + " out of " + QUIZ_DATA.length + " correct";
+  document.getElementById("scoreSub").textContent = score === QUIZ_DATA.length
+    ? "You know all about plants and animals!"
+    : "Ask a grown-up to read the notes, then try again!";
+}
+
+function restart(){
+  idx = 0;
+  score = 0;
+  scoreScreen.classList.remove("show");
+  quizCard.style.display = "flex";
+  render();
+}
+
+nextBtn.addEventListener("click", function () {
+  idx++;
+  if (idx >= QUIZ_DATA.length) showScore();
+  else render();
+});
+document.getElementById("tryAgain").addEventListener("click", restart);
+
+render();
+</script>
+</body>
+</html>
