@@ -227,106 +227,106 @@
 const QUIZ_DATA = [
   // --- Topic 1: Name some plants and animals ---
   {
-    q: "Is a tree a plant or an animal? 🤔",
-    options: ["🌿 It's a plant", "🐾 It's an animal", "🤷 It's both"],
-    correct: 0,
-    note: "A tree is a plant. Plants grow from the ground."
+    q: "A butterfly 🦋 comes to rest on a sunflower 🌻. Which one is an ANIMAL?",
+    options: ["🌻 The sunflower", "🦋 The butterfly", "🌳 A mango tree"],
+    correct: 1,
+    note: "A butterfly is an animal. It can fly and drinks sweet nectar. Sunflowers and mango trees are plants."
   },
   {
-    q: "Which one is an animal? 🤔",
-    options: ["🌸 A flower", "🐦 A bird", "🌳 A tree"],
-    correct: 1,
-    note: "A bird is an animal. Flowers and trees are plants."
+    q: "A monkey 🐒 climbs up a mango tree 🌳. Which one is a PLANT?",
+    options: ["🐒 The monkey", "🐘 An elephant", "🌳 The mango tree"],
+    correct: 2,
+    note: "A mango tree is a plant. It grows from the ground and gives us sweet mangoes!"
   },
 
   // --- Topic 2: Sort leaves into groups (size, colour, shape) ---
   {
-    q: "Which leaf is the BIGGEST? 🤔",
+    q: "Mia is sorting leaves into two groups. She put these two together: 🍃🍃. Which leaf belongs with them?",
     options: [
-      { label: "Small leaf", shape: { t: "emoji", e: "🍃", s: 1 } },
-      { label: "Big leaf",   shape: { t: "emoji", e: "🍃", s: 2 } },
-      { label: "Biggest leaf", shape: { t: "emoji", e: "🍃", s: 3 } }
-    ],
-    correct: 2,
-    note: "The biggest leaf is the largest one. Its leaves can be sorted by size!"
-  },
-  {
-    q: "Which leaf is RED? 🤔",
-    options: [
-      { label: "Green leaf",  shape: { t: "emoji", e: "🍃", s: 2 } },
       { label: "Yellow leaf", shape: { t: "emoji", e: "🍂", s: 2 } },
-      { label: "Red leaf",    shape: { t: "emoji", e: "🍁", s: 2 } }
+      { label: "Red leaf",    shape: { t: "emoji", e: "🍁", s: 2 } },
+      { label: "Green leaf",  shape: { t: "emoji", e: "🍃", s: 2 } }
     ],
     correct: 2,
-    note: "The red leaf looks like a strawberry! Leaves come in many colours."
+    note: "The green leaf belongs with the other green leaves. Mia grouped them by colour!"
   },
   {
-    q: "Which leaf is ROUND? 🤔",
+    q: "Ben put the smallest leaf first. Which leaf comes NEXT?",
     options: [
-      { label: "Pointy leaf", shape: { t: "emoji", e: "🍃", s: 2 } },
-      { label: "Round leaf",  shape: { t: "emoji", e: "🍀", s: 2 } },
-      { label: "Oval leaf",   shape: { t: "emoji", e: "🌿", s: 2 } }
+      { label: "Small leaf",  shape: { t: "emoji", e: "🍃", s: 1 } },
+      { label: "Middle leaf", shape: { t: "emoji", e: "🍃", s: 2 } },
+      { label: "Big leaf",    shape: { t: "emoji", e: "🍃", s: 3 } }
     ],
     correct: 1,
+    note: "The middle leaf comes next! Smallest, then middle, then biggest."
+  },
+  {
+    q: "A squirrel 🐿️ is collecting ROUND leaves. Which leaf will he take?",
+    options: [
+      { label: "Pointy leaf", shape: { t: "emoji", e: "🍃", s: 2 } },
+      { label: "Oval leaf",   shape: { t: "emoji", e: "🌿", s: 2 } },
+      { label: "Round leaf",  shape: { t: "emoji", e: "🍀", s: 2 } }
+    ],
+    correct: 2,
     note: "The round leaf is the circle one. Leaves come in many shapes!"
   },
 
   // --- Topic 3: Parts of a plant ---
   {
-    q: "Which part of a plant 🌳 grows UNDER the ground? 🤔",
-    options: ["🌱 Roots", "🌸 Flower", "🍃 Leaves"],
-    correct: 0,
-    note: "Roots grow under the ground. They hold the plant in the soil."
+    q: "Water is under the ground. Which part of a plant 🌳 drinks the water?",
+    options: ["🌸 The flower", "🌱 The roots", "🍃 The leaves"],
+    correct: 1,
+    note: "Roots grow under the ground. They drink the water in the soil."
   },
   {
-    q: "What do leaves 🍃 do for the plant? 🤔",
-    options: ["☀️ Make food from sunshine", "🐶 Bark like a dog", "👟 Wear shoes"],
-    correct: 0,
-    note: "Leaves catch sunshine to make food for the plant."
+    q: "Why does a plant need leaves 🍃?",
+    options: ["🎵 To sing songs", "☀️ To make food from sunshine", "🏃 To jump high"],
+    correct: 1,
+    note: "Leaves catch sunshine to make food for the whole plant."
   },
 
   // --- Topic 4: Parts of animals ---
   {
-    q: "Which animal has wings? 🤔",
-    options: ["🐦 A bird", "🐟 A fish", "🐱 A cat"],
-    correct: 0,
-    note: "Birds have wings. They flap them to fly."
+    q: "A bird flies high in the sky to find food. Which part helps it fly?",
+    options: ["🦵 Its legs", "👂 Its ears", "🪶 Its wings"],
+    correct: 2,
+    note: "Birds have wings. They flap them to fly up high."
   },
 
   // --- Topic 5: How animals sense things ---
   {
-    q: "A dog 🐶 finds things by smell. Which part does it use? 🤔",
-    options: ["👃 Its nose", "👂 Its ears", "Its tail"],
-    correct: 0,
-    note: "Dogs have amazing noses! They smell with their nose."
+    q: "Your dog is sniffing the grass to find its ball. Which part is it using?",
+    options: ["👂 Its ears", "🐾 Its paws", "👃 Its nose"],
+    correct: 2,
+    note: "Dogs have amazing noses! Sniffing is how they find things."
   },
 
   // --- Topic 6: Where animals and plants live ---
   {
-    q: "Where does a fish 🐟 live? 🤔",
-    options: ["🌊 In the water", "🌳 In a tree", "🪨 Under a rock"],
-    correct: 0,
-    note: "Fish live in the water. They swim all day!"
+    q: "A cactus 🌵 has thick skin to store water. Where does it live?",
+    options: ["🏔️ On snowy ice", "🏜️ In the hot desert", "🌊 In the water"],
+    correct: 1,
+    note: "A cactus stores water in its thick skin, so it can live in the hot desert."
   },
 
   // --- Topic 7: Smell, taste and touch ---
   {
-    q: "You taste your food 🍦 with your ____ 🤔",
-    options: ["👅 Tongue", "👂 Ears", "💪 Elbow"],
+    q: "You close your eyes 🙈 and someone puts a soft teddy bear 🧸 in your hands. Which sense tells you it's SOFT?",
+    options: ["✋ Touch", "👃 Smell", "👂 Hearing"],
     correct: 0,
-    note: "Your tongue helps you taste yummy food."
+    note: "Your skin feels things — soft, hard, warm or cold. That's touch!"
   },
 
   // --- Topic 8: Measure - taller or shorter than you ---
   {
-    q: "Which plant is TALLER? 🤔",
+    q: "Plant A is TALLER than Plant B. Which plant is SHORTER?",
     prompt: [
       { t: "emoji", e: "🌳", s: 3, label: "Plant A" },
       { t: "emoji", e: "🌱", s: 2, label: "Plant B" }
     ],
-    options: ["📏 Plant A is taller", "Plant B is taller", "They are the same"],
-    correct: 0,
-    note: "Plant A is taller. It grows higher than Plant B!"
+    options: ["🌳 Plant A is shorter", "They are the same", "🌱 Plant B is shorter"],
+    correct: 2,
+    note: "Plant B is shorter. Taller and shorter tell us how big a plant is!"
   }
 ];
 
