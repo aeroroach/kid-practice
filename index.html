@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Science Quiz - Plants and Animals</title>
+<title>Home Economics Quiz - Food Preservation</title>
 <style>
   :root{
     --sky:#cdeafc;
@@ -184,8 +184,8 @@
 <body>
 <div class="app">
   <header>
-    <div class="title">Science Quiz 🔬</div>
-    <div class="subtitle">Plants and Animals 🐾</div>
+    <div class="title">Home Economics Quiz 🏠</div>
+    <div class="subtitle">Food Preservation 🍽️</div>
     <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
     <div class="qnum" id="qnum">Question 1 of 12</div>
   </header>
@@ -212,7 +212,13 @@
 
 <script>
 /* =========================================================
-   QUIZ_DATA - Grade 1 Science wrap-up: Plants and Animals
+   QUIZ_DATA - Grade 1 Home Economics: Food Preservation
+   ---------------------------------------------------------
+   Source notes: freezing (meat, fish, ice cream),
+   canning (beans, fish, fruits), drying (squid, seaweed),
+   refrigeration (fruits, milk).
+   Rule: questions must be scenario/reasoning based, NOT
+   straight-forward recall (see README, AI instructions #4).
    ---------------------------------------------------------
    Each question object:
    - q        : the question text (shown big in the card)
@@ -225,113 +231,72 @@
    ========================================================= */
 
 const QUIZ_DATA = [
-  // --- Topic 1: Name some plants and animals ---
+  // --- Freezing ---
   {
-    q: "A butterfly 🦋 comes to rest on a sunflower 🌻. Which one is an ANIMAL?",
-    options: ["🌻 The sunflower", "🦋 The butterfly", "🌳 A mango tree"],
-    correct: 1,
-    note: "A butterfly is an animal. It can fly and drinks sweet nectar. Sunflowers and mango trees are plants."
-  },
-  {
-    q: "A monkey 🐒 climbs up a mango tree 🌳. Which one is a PLANT?",
-    options: ["🐒 The monkey", "🐘 An elephant", "🌳 The mango tree"],
-    correct: 2,
-    note: "A mango tree is a plant. It grows from the ground and gives us sweet mangoes!"
-  },
-
-  // --- Topic 2: Sort leaves into groups (size, colour, shape) ---
-  {
-    q: "Mia is sorting leaves by COLOUR. Her green group already has these: 🍀 and 🌿. Which leaf goes in the green group?",
-    options: [
-      { label: "Yellow leaf", shape: { t: "emoji", e: "🍂", s: 2 } },
-      { label: "Red leaf",    shape: { t: "emoji", e: "🍁", s: 2 } },
-      { label: "Green leaf",  shape: { t: "emoji", e: "🍃", s: 2 } }
-    ],
-    correct: 2,
-    note: "The green leaf goes in the green group. 🍃 is green like 🍀 and 🌿 — Mia sorts by colour!"
-  },
-  {
-    q: "Ben lined up his leaves from SMALLEST to BIGGEST. One leaf is in the WRONG place. Which one?",
-    prompt: [
-      { t: "emoji", e: "🍃", s: 1, label: "Small" },
-      { t: "emoji", e: "🍃", s: 3, label: "Big" },
-      { t: "emoji", e: "🍃", s: 2, label: "Middle" }
-    ],
-    options: [
-      { label: "Small leaf",  shape: { t: "emoji", e: "🍃", s: 1 } },
-      { label: "Middle leaf", shape: { t: "emoji", e: "🍃", s: 2 } },
-      { label: "Big leaf",    shape: { t: "emoji", e: "🍃", s: 3 } }
-    ],
-    correct: 2,
-    note: "The BIG leaf is in the wrong place! From smallest to biggest, the big leaf should come LAST."
-  },
-  {
-    q: "A maple leaf is pointy like a star ⭐. Which leaf is POINTY?",
-    options: [
-      { label: "Oval leaf",   shape: { t: "emoji", e: "🌿", s: 2 } },
-      { label: "Round leaf",  shape: { t: "emoji", e: "🍀", s: 2 } },
-      { label: "Pointy leaf", shape: { t: "emoji", e: "🍁", s: 2 } }
-    ],
-    correct: 2,
-    note: "The maple leaf has points like a star! 🍀 clover leaves are round and 🌿 herb leaves are oval."
-  },
-
-  // --- Topic 3: Parts of a plant ---
-  {
-    q: "Water is under the ground. Which part of a plant 🌳 drinks the water?",
-    options: ["🌸 The flower", "🌱 The roots", "🍃 The leaves"],
-    correct: 1,
-    note: "Roots grow under the ground. They drink the water in the soil."
-  },
-  {
-    q: "Why does a plant need leaves 🍃?",
-    options: ["🎵 To sing songs", "☀️ To make food from sunshine", "🏃 To jump high"],
-    correct: 1,
-    note: "Leaves catch sunshine to make food for the whole plant."
-  },
-
-  // --- Topic 4: Parts of animals ---
-  {
-    q: "A bird flies high in the sky to find food. Which part helps it fly?",
-    options: ["🦵 Its legs", "👂 Its ears", "🪶 Its wings"],
-    correct: 2,
-    note: "Birds have wings. They flap them to fly up high."
-  },
-
-  // --- Topic 5: How animals sense things ---
-  {
-    q: "Your dog is sniffing the grass to find its ball. Which part is it using?",
-    options: ["👂 Its ears", "🐾 Its paws", "👃 Its nose"],
-    correct: 2,
-    note: "Dogs have amazing noses! Sniffing is how they find things."
-  },
-
-  // --- Topic 6: Where animals and plants live ---
-  {
-    q: "A cactus 🌵 has thick skin to store water. Where does it live?",
-    options: ["🏔️ On snowy ice", "🏜️ In the hot desert", "🌊 In the water"],
-    correct: 1,
-    note: "A cactus stores water in its thick skin, so it can live in the hot desert."
-  },
-
-  // --- Topic 7: Smell, taste and touch ---
-  {
-    q: "You close your eyes 🙈 and someone puts a soft teddy bear 🧸 in your hands. Which sense tells you it's SOFT?",
-    options: ["✋ Touch", "👃 Smell", "👂 Hearing"],
+    q: "On a hot day, Mia left her ice cream 🍦 on the table and it turned into a puddle. Why did that happen?",
+    options: ["🌞 It got too warm and melted", "❄️ It got too cold", "☀️ Someone dried it out"],
     correct: 0,
-    note: "Your skin feels things — soft, hard, warm or cold. That's touch!"
+    note: "Frozen food melts when it gets warm. Ice cream must stay in the freezer!"
+  },
+  {
+    q: "Grandpa catches a big fish 🐟 today, but the family will eat it next month. Fish can be kept TWO ways so it stays good. Which two ways work?",
+    options: ["❄️ Freezing and 🥫 canning", "☀️ Drying and 🧊 refrigeration", "❄️ Freezing and ☀️ drying"],
+    correct: 0,
+    note: "Fish can be frozen or canned! Both ways keep it good for a long time."
+  },
+  {
+    q: "Mom bought ice cream 🍦 for a party next week. Where is the BEST place to keep it so it stays frozen?",
+    options: ["🧊 In the fridge", "❄️ In the freezer", "🍽️ On the kitchen table"],
+    correct: 1,
+    note: "The freezer is very, very cold, so the ice cream stays frozen until party time!"
+  },
+  {
+    q: "Frozen meat 🥩 stays good for a long time. Why?",
+    options: ["❄️ Because it is kept very cold", "🌡️ Because it is kept very warm", "🥫 Because it is sealed in a can"],
+    correct: 0,
+    note: "Very cold air stops the meat from going bad. That is how freezing works!"
   },
 
-  // --- Topic 8: Measure - taller or shorter than you ---
+  // --- Refrigeration ---
   {
-    q: "Plant A is TALLER than Plant B. You are the same height as Plant B. Who is taller — you or Plant A?",
-    prompt: [
-      { t: "emoji", e: "🌳", s: 3, label: "Plant A" },
-      { t: "emoji", e: "🌱", s: 2, label: "Plant B" }
-    ],
-    options: ["🧒 I am taller", "🌳 Plant A is taller", "🤷 We are the same height"],
+    q: "Mama wants milk 🥛 for tomorrow's breakfast. She wants it COOL but NOT frozen. Where should she put it?",
+    options: ["🧊 In the fridge", "❄️ In the freezer", "📦 In the cupboard"],
+    correct: 0,
+    note: "The fridge keeps milk cool and fresh. The freezer would freeze it solid!"
+  },
+  {
+    q: "Which food needs the FREEZER ❄️ and would melt in the fridge?",
+    options: ["🍎 Fruits", "🍦 Ice cream", "🥛 Milk"],
     correct: 1,
-    note: "Plant A is taller than you! Plant A is taller than Plant B, and you are as tall as Plant B."
+    note: "Fruits and milk are happy in the fridge, but ice cream melts without the freezer!"
+  },
+
+  // --- Drying ---
+  {
+    q: "Grandpa dries food under the hot sun ☀️ so it lasts a long time. Which food could he dry?",
+    options: ["🌿 Seaweed", "🍦 Ice cream", "🥛 Milk"],
+    correct: 0,
+    note: "Seaweed and squid are dried in the sun so they keep for a long time!"
+  },
+  {
+    q: "Why does drying food in the sun help it last a long time?",
+    options: ["💧 Because the water is taken out", "❄️ Because it gets very cold", "📏 Because it gets bigger"],
+    correct: 0,
+    note: "Drying takes the water out of the food. Dried squid and seaweed last a long time!"
+  },
+
+  // --- Canning ---
+  {
+    q: "Cans 🥫 keep food good for a very long time. Which food can be sealed in a can?",
+    options: ["🫘 Beans", "🍦 Ice cream", "🦑 Dried squid"],
+    correct: 0,
+    note: "Beans, fish and fruits can be canned. The tight can keeps them good for months!"
+  },
+  {
+    q: "On a picnic 🧺 Mia packs canned beans 🫘 and fresh milk 🥛. Which one stays good even WITHOUT a fridge?",
+    options: ["🫘 The canned beans", "🥛 The fresh milk", "🍦 An ice cream"],
+    correct: 0,
+    note: "Canned beans stay good without a fridge. Milk and ice cream must stay cold!"
   }
 ];
 
@@ -431,7 +396,7 @@ function showScore(){
   document.getElementById("scoreTitle").textContent = pct === 1 ? "Perfect! 🎉" : pct >= 0.6 ? "Good work! 👍" : "Keep practicing! 🌱";
   document.getElementById("scoreText").textContent = score + " out of " + QUIZ_DATA.length + " correct";
   document.getElementById("scoreSub").textContent = score === QUIZ_DATA.length
-    ? "You know all about plants and animals!"
+    ? "You know all about food preservation!"
     : "Ask a grown-up to read the notes, then try again!";
 }
 

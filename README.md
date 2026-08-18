@@ -58,4 +58,5 @@ When initialization (`/init`) occurs or updates are requested:
 1. **Always read this README first** to align with the single-file architectural constraint and design tokens.
 2. When asked to "change the topic" or "update questions," **only rewrite the contents of the `QUIZ_DATA` array**. Do not alter the underlying CSS structure, animations, or scoring logic unless explicitly instructed.
 3. Ensure all generated interactive elements lack `hover` states (as they do not apply to touch screens) and utilize `cursor: pointer` primarily for desktop previewing symmetry.
+4. **Question quality — no straight-forward recall.** Do not write questions where the answer just repeats the cue (e.g., "Meat goes in the freezer → which method?" answered by echoing "freezing"). Prefer short scenario-based questions that require a reasoning step: a mini-story with distractors (e.g., ice cream left out on a hot day, milk that must stay cool but not frozen), "why does this method work?" questions, or "which food uses this method?" reversed matchings. Build all content only from the topic's source material and keep it at the child's grade level.
 # kid-practice
