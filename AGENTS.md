@@ -6,8 +6,8 @@
 
 ## Architecture constraints (from README)
 - Strict single-file app: ALL HTML, CSS, and JS must live in `index.html`. No external `.css`/`.js` files, no front-end frameworks, no external fonts (Vercel compatibility, offline-capable, tablet-first).
-- Quiz questions live in a cleanly commented JS array named `QUIZ_DATA` at the top of the `<script>` tag.
-- "Change the topic" / "update questions" always means: rewrite only the `QUIZ_DATA` array. Do not touch CSS, animations, or scoring logic unless explicitly asked.
+- Quiz questions live in a cleanly commented JS array named `QUIZ_DATA` at the top of the `<script>` tag. Each question is tagged with a `set` id; a `QUIZ_SETUP` const defines set order and per-set question counts. Every run samples randomly from the pool and shuffles options, so retries differ. Questions may carry a `listen` string spoken by the 🔊 button (native SpeechSynthesis).
+- "Change the topic" / "update questions" always means: rewrite only the `QUIZ_DATA` array (plus set names/counts in `QUIZ_SETUP` if needed). Do not touch CSS, animations, or scoring logic unless explicitly asked. Keep each set's pool bigger than its sampled `count` so retries stay varied.
 
 ## UI design tokens
 - Base font ≥ 18px, clean sans-serif. Touch targets ≥ 56px, spacing ≥ 16px.

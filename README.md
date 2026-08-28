@@ -17,6 +17,7 @@ To ensure maximum compatibility with Vercel and effortless file transfers, the e
 1. **Single File Only**: Everything must live inside `index.html`. Do not generate external `.css` or `.js` files.
 2. **Offline Capable**: Avoid external dependencies (like heavy front-end frameworks or external fonts). Use native Web APIs and standard semantic HTML5.
 3. **Data Isolation**: The quiz questions must be stored in a clean, clearly commented JavaScript array named `QUIZ_DATA` at the top of the `<script>` tag. Options may be plain strings or `{ label, shape: { t: "emoji", e: "🌳", s: 1-3 } }` objects for emoji graphics. This allows easy topical rewrites without touching the UI rendering logic.
+4. **Practice Sets & Question Pool**: `QUIZ_DATA` is a *pool* of questions, each tagged with a `set` id (spelling, grammar, dialog, polite, etc.). A `QUIZ_SETUP` object next to it defines the set order and how many questions each set samples. Each run (fresh load or "Try Again") randomly samples and shuffles the pool, so **retries always present different questions**. Per-question `listen` text feeds the 🔊 Listen button (native SpeechSynthesis, offline).
 
 ---
 
@@ -56,7 +57,7 @@ New topics are created on isolated Git branches named after the subject (e.g., `
 
 When initialization (`/init`) occurs or updates are requested:
 1. **Always read this README first** to align with the single-file architectural constraint and design tokens.
-2. When asked to "change the topic" or "update questions," **only rewrite the contents of the `QUIZ_DATA` array**. Do not alter the underlying CSS structure, animations, or scoring logic unless explicitly instructed.
+2. When asked to "change the topic" or "update questions," **only rewrite the contents of `QUIZ_DATA`** (and, if needed, the set names/counts in `QUIZ_SETUP`). Do not alter the underlying CSS structure, animations, or scoring logic unless explicitly instructed. Keep each set's pool larger than its sampled count so retries vary.
 3. Ensure all generated interactive elements lack `hover` states (as they do not apply to touch screens) and utilize `cursor: pointer` primarily for desktop previewing symmetry.
 4. **Question quality — no straight-forward recall.** Do not write questions where the answer just repeats the cue (e.g., "Meat goes in the freezer → which method?" answered by echoing "freezing"). Prefer short scenario-based questions that require a reasoning step: a mini-story with distractors (e.g., ice cream left out on a hot day, milk that must stay cool but not frozen), "why does this method work?" questions, or "which food uses this method?" reversed matchings. Build all content only from the topic's source material and keep it at the child's grade level.
 # kid-practice

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Home Economics Quiz - Food Preservation</title>
+<title>English Quiz - Foods & Friends</title>
 <style>
   :root{
     --sky:#cdeafc;
@@ -79,6 +79,22 @@
     gap:24px;
   }
   .question{font-size:28px;font-weight:800;line-height:1.3;text-align:center}
+  .listen-wrap{display:flex;justify-content:center}
+  .listen{
+    appearance:none;
+    border:none;
+    background:#fff7e0;
+    color:var(--ink);
+    font-family:inherit;
+    font-size:20px;
+    font-weight:800;
+    border-radius:999px;
+    min-height:56px;
+    padding:12px 28px;
+    box-shadow:0 3px 0 rgba(38,70,83,.2);
+    cursor:pointer;
+  }
+  .listen:active{transform:scale(.98)}
   .prompt{
     display:flex;
     justify-content:center;
@@ -157,6 +173,13 @@
   }
   .next.show{display:block}
 
+  /* ---------- Set intro screen ---------- */
+  .set-intro{display:none;flex-direction:column;align-items:center;gap:16px;text-align:center}
+  .set-intro.show{display:flex}
+  .set-intro-emoji{font-size:76px}
+  .set-intro-name{font-size:34px;font-weight:800}
+  .set-intro-sub{font-size:20px;color:var(--muted)}
+
   /* ---------- Score screen ---------- */
   .score-screen{display:none;flex-direction:column;align-items:center;gap:20px;text-align:center}
   .score-screen.show{display:flex}
@@ -164,6 +187,19 @@
   .stars{font-size:46px;letter-spacing:6px;color:var(--yellow)}
   .score-text{font-size:26px;font-weight:700}
   .score-sub{font-size:20px;color:var(--muted)}
+  .set-results{width:100%;display:flex;flex-direction:column;gap:12px}
+  .set-result{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    background:#eaf6ff;
+    border-radius:16px;
+    padding:14px 20px;
+    font-size:20px;
+    font-weight:700;
+  }
+  .set-result .stars{font-size:22px;letter-spacing:2px}
   .try-again{
     appearance:none;
     border:none;
@@ -184,14 +220,15 @@
 <body>
 <div class="app">
   <header>
-    <div class="title">Home Economics Quiz 🏠</div>
-    <div class="subtitle">Food Preservation 🍽️</div>
+    <div class="title">English Quiz 📖</div>
+    <div class="subtitle" id="subtitle">Foods &amp; Friends</div>
     <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="qnum" id="qnum">Question 1 of 12</div>
+    <div class="qnum" id="qnum">Question 1 of 19</div>
   </header>
 
   <section class="card" id="quizCard">
     <div class="question" id="qtext"></div>
+    <div class="listen-wrap"><button class="listen" id="listenBtn">🔊 Listen</button></div>
     <div class="prompt" id="prompt"></div>
     <div class="options" id="options"></div>
     <div class="feedback" id="feedback">
@@ -201,10 +238,18 @@
     <button class="next" id="nextBtn"></button>
   </section>
 
+  <section class="set-intro" id="setIntro">
+    <div class="set-intro-emoji" id="setIntroEmoji"></div>
+    <div class="set-intro-name" id="setIntroName"></div>
+    <div class="set-intro-sub" id="setIntroSub"></div>
+    <button class="try-again" id="startSetBtn">Start ➡️</button>
+  </section>
+
   <section class="score-screen" id="scoreScreen">
     <div class="stars" id="stars"></div>
     <div class="score-title" id="scoreTitle"></div>
     <div class="score-text" id="scoreText"></div>
+    <div class="set-results" id="setResults"></div>
     <div class="score-sub" id="scoreSub"></div>
     <button class="try-again" id="tryAgain">Try Again 🔄</button>
   </section>
@@ -212,101 +257,381 @@
 
 <script>
 /* =========================================================
-   QUIZ_DATA - Grade 1 Home Economics: Food Preservation
+   QUIZ_SETUP - quiz title + practice sets
    ---------------------------------------------------------
-   Source notes: freezing (meat, fish, ice cream),
-   canning (beans, fish, fruits), drying (squid, seaweed),
-   refrigeration (fruits, milk).
-   Rule: questions must be scenario/reasoning based, NOT
-   straight-forward recall (see README, AI instructions #4).
+   Each set samples `count` questions at random from the
+   QUIZ_DATA pool below, so every retry asks different
+   questions. To change the topic, rewrite QUIZ_DATA (and
+   optionally adjust set names/counts here).
+   ========================================================= */
+
+const QUIZ_SETUP = {
+  title: "English Quiz 📖",
+  subtitle: "Foods & Friends",
+  sets: [
+    { id: "spelling", name: "Spelling", emoji: "🔤", count: 5 },
+    { id: "grammar",  name: "Like & Likes", emoji: "🧩", count: 5 },
+    { id: "dialog",   name: "Do you like…?", emoji: "🗣️", count: 4 },
+    { id: "polite",   name: "Can I have…?", emoji: "🎈", count: 5 }
+  ]
+};
+
+/* =========================================================
+   QUIZ_DATA - question pool (32 questions, 4 sets)
    ---------------------------------------------------------
    Each question object:
-   - q        : the question text (shown big in the card)
-   - options  : strings, OR { label, shape } objects.
-                shape: { t:"emoji", e:emoji char, s:size 1-3 }
-   - correct  : index of the right answer
-   - note     : short learning line shown after answering
-   - prompt   : optional shapes shown above the options
-   To change topics, rewrite ONLY this array.
+   - set     : which practice set it belongs to
+               (one of QUIZ_SETUP.sets[].id)
+   - q       : question text (shown big in the card)
+   - options : strings, OR { label, shape } objects.
+               shape: { t:"emoji", e:emoji char, s:size 1-3 }
+   - correct : index of the right answer (before shuffling)
+   - listen  : optional text spoken by the 🔊 Listen button.
+               Defaults to the question text when missing.
+   - note    : short learning line shown after answering
+   - prompt  : optional shapes shown above the options
+   Spelling set: the emoji is the picture cue; the Listen
+   button speaks the word so the kid hears it, then picks
+   the correctly spelled option (misspellings sound alike,
+   so the child must match letters, not echo the sound).
+   Dialog sets: kids must pick FULL-PHRASE answers and say
+   the whole sentence out loud (never a bare yes/no).
    ========================================================= */
 
 const QUIZ_DATA = [
-  // --- Freezing ---
+  // --- Set: spelling ---
   {
-    q: "On a hot day, Mia left her ice cream 🍦 on the table and it turned into a puddle. Why did that happen?",
-    options: ["🌞 It got too warm and melted", "❄️ It got too cold", "☀️ Someone dried it out"],
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🍎", s: 2 }],
+    options: ["Fruit", "Fruite", "Frute"],
     correct: 0,
-    note: "Frozen food melts when it gets warm. Ice cream must stay in the freezer!"
+    listen: "Fruit",
+    note: "F-R-U-I-T. Apples, oranges and mangoes are all fruits!"
   },
   {
-    q: "Grandpa caught a lot of fish 🐟, but the freezer couldn't keep all of it. He wants the rest to stay good until NEXT MONTH. What else could he use?",
-    options: ["🥫 Cans", "🧊 The fridge", "🍽️ The table"],
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🍇", s: 2 }],
+    options: ["Grapes", "Grapse", "Graps"],
     correct: 0,
-    note: "Cans seal fish tight so it stays good for months! The fridge only keeps food fresh for a few days."
+    listen: "Grapes",
+    note: "G-R-A-P-E-S. Grapes grow in little bunches!"
   },
   {
-    q: "Mom bought ice cream 🍦 for a party next week. Where is the BEST place to keep it so it stays frozen?",
-    options: ["🧊 In the fridge", "❄️ In the freezer", "🍽️ On the kitchen table"],
-    correct: 1,
-    note: "The freezer is very, very cold, so the ice cream stays frozen until party time!"
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🍊", s: 2 }],
+    options: ["Orange", "Orang", "Orenge"],
+    correct: 0,
+    listen: "Orange",
+    note: "O-R-A-N-G-E. Orange is a fruit AND a color!"
   },
   {
-    q: "Frozen meat 🥩 stays good for a long time. Why?",
-    options: ["❄️ Because it is kept very cold", "🌡️ Because it is kept very warm", "🥫 Because it is sealed in a can"],
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🥩", s: 2 }],
+    options: ["Meat", "Mett", "Mete"],
     correct: 0,
-    note: "Very cold air stops the meat from going bad. That is how freezing works!"
+    listen: "Meat",
+    note: "M-E-A-T. Meat comes from animals like cows and pigs."
+  },
+  {
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🌭", s: 2 }],
+    options: ["Sausage", "Sossage", "Sausige"],
+    correct: 0,
+    listen: "Sausage",
+    note: "S-A-U-S-A-G-E. A long, tasty sausage in a bun!"
+  },
+  {
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🍞", s: 2 }],
+    options: ["Bread", "Bred", "Breadd"],
+    correct: 0,
+    listen: "Bread",
+    note: "B-R-E-A-D. Bread is soft and yummy with butter!"
+  },
+  {
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🍌", s: 2 }],
+    options: ["Banana", "Bannana", "Bananna"],
+    correct: 0,
+    listen: "Banana",
+    note: "B-A-N-A-N-A. Say it slowly: ba-na-na! One N in the middle."
+  },
+  {
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🥭", s: 2 }],
+    options: ["Mango", "Manggo", "Mangoo"],
+    correct: 0,
+    listen: "Mango",
+    note: "M-A-N-G-O. Sweet and yellow inside!"
+  },
+  {
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🥤", s: 2 }],
+    options: ["Lemonade", "Lemmonade", "Lemonad"],
+    correct: 0,
+    listen: "Lemonade",
+    note: "L-E-M-O-N-A-D-E. Cold lemonade is sour-sweet!"
+  },
+  {
+    set: "spelling",
+    q: "Which word is spelled correctly?",
+    prompt: [{ t: "emoji", e: "🍔", s: 2 }],
+    options: ["Burger", "Burgar", "Berger"],
+    correct: 0,
+    listen: "Burger",
+    note: "B-U-R-G-E-R. Round, juicy and delicious!"
   },
 
-  // --- Refrigeration ---
+  // --- Set: grammar (like / likes / don't / doesn't) ---
   {
-    q: "Mama wants milk 🥛 for tomorrow's breakfast. She wants it COOL but NOT frozen. Where should she put it?",
-    options: ["🧊 In the fridge", "❄️ In the freezer", "📦 In the cupboard"],
+    set: "grammar",
+    q: "Harry loves mangoes 🥭. Which sentence is right?",
+    options: ["Harry likes mangoes.", "Harry like mangoes.", "Harry is like mangoes."],
     correct: 0,
-    note: "The fridge keeps milk cool and fresh. The freezer would freeze it solid!"
+    note: "Harry is one person, so we say he LIKES mangoes. For 'I' and 'you', we say LIKE."
   },
   {
-    q: "Which food needs the FREEZER ❄️ and would melt in the fridge?",
-    options: ["🍎 Fruits", "🍦 Ice cream", "🥛 Milk"],
-    correct: 1,
-    note: "Fruits and milk are happy in the fridge, but ice cream melts without the freezer!"
+    set: "grammar",
+    q: "Mia loves chocolate 🍫. She ___ chocolate.",
+    options: ["likes", "like", "is like"],
+    correct: 0,
+    note: "She likes. One person gets an -s: I like, you like, but he/she LIKES!"
+  },
+  {
+    set: "grammar",
+    q: "I ___ books 📚. I like playing instead.",
+    options: ["don't like", "doesn't like", "not like"],
+    correct: 0,
+    note: "I don't like books. With 'I' we always say DON'T like."
+  },
+  {
+    set: "grammar",
+    q: "Harry ___ chocolate. He only likes mangoes 🥭.",
+    options: ["doesn't like", "don't like", "like"],
+    correct: 0,
+    note: "Harry doesn't like chocolate. One person → DOESN'T like."
+  },
+  {
+    set: "grammar",
+    q: "We ___ bananas 🍌. We eat them every day.",
+    options: ["like", "likes", "is like"],
+    correct: 0,
+    note: "We like bananas. With 'we' we say LIKE, no -s."
+  },
+  {
+    set: "grammar",
+    q: "We ___ meat 🥩. We are vegetarian.",
+    options: ["don't like", "doesn't like", "likes"],
+    correct: 0,
+    note: "We don't like meat. With 'we' we say DON'T like."
+  },
+  {
+    set: "grammar",
+    q: "Mia's mom ___ orange juice 🍊 every morning.",
+    options: ["likes", "like", "is likes"],
+    correct: 0,
+    note: "Mia's mom is one person, so she LIKES orange juice."
+  },
+  {
+    set: "grammar",
+    q: "Tom ___ sausage 🌭. He says it's too salty.",
+    options: ["doesn't like", "don't like", "like"],
+    correct: 0,
+    note: "Tom doesn't like sausage. One person → DOESN'T like."
   },
 
-  // --- Drying ---
+  // --- Set: dialog (Do you like…? full-phrase answers) ---
   {
-    q: "Grandpa dries food under the hot sun ☀️ so it lasts a long time. Which food could he dry?",
-    options: ["🌿 Seaweed", "🍦 Ice cream", "🥛 Milk"],
+    set: "dialog",
+    q: "Harry loves chocolate 🍫. You ask him: \"Do you like chocolate?\" What does Harry say?",
+    options: [
+      "Yes, I do. I like chocolate!",
+      "No, I don't. I don't like chocolate.",
+      "Yes, I do. I don't like chocolate."
+    ],
     correct: 0,
-    note: "Seaweed and squid are dried in the sun so they keep for a long time!"
+    listen: "Do you like chocolate? Yes, I do. I like chocolate!",
+    note: "Say the whole sentence out loud: \"Yes, I do. I like chocolate!\""
   },
   {
-    q: "Why does drying food in the sun help it last a long time?",
-    options: ["💧 Because the water is taken out", "❄️ Because it gets very cold", "📏 Because it gets bigger"],
+    set: "dialog",
+    q: "Mia doesn't like grapes 🍇. You ask her: \"Do you like grapes?\" What does Mia say?",
+    options: [
+      "No, I don't. I don't like grapes.",
+      "Yes, I do. I like grapes!",
+      "No, I don't. I like grapes."
+    ],
     correct: 0,
-    note: "Drying takes the water out of the food. Dried squid and seaweed last a long time!"
+    listen: "Do you like grapes? No, I don't. I don't like grapes.",
+    note: "Say the whole sentence out loud: \"No, I don't. I don't like grapes.\""
+  },
+  {
+    set: "dialog",
+    q: "Tom loves bread 🍞. You ask him: \"Do you like bread?\" What does Tom say?",
+    options: [
+      "Yes, I do. I like bread!",
+      "No, I don't. I don't like bread.",
+      "Yes, I do. I don't like bread."
+    ],
+    correct: 0,
+    listen: "Do you like bread? Yes, I do. I like bread!",
+    note: "Say the whole sentence out loud: \"Yes, I do. I like bread!\""
+  },
+  {
+    set: "dialog",
+    q: "Mia doesn't like sausage 🌭. You ask her: \"Do you like sausage?\" What does Mia say?",
+    options: [
+      "No, I don't. I don't like sausage.",
+      "Yes, I do. I like sausage!",
+      "Yes, I do. I don't like sausage."
+    ],
+    correct: 0,
+    listen: "Do you like sausage? No, I don't. I don't like sausage.",
+    note: "Say the whole sentence out loud: \"No, I don't. I don't like sausage.\""
+  },
+  {
+    set: "dialog",
+    q: "You love bananas 🍌. You ask your friend: \"Do you like bananas?\" He loves them too! What does he say?",
+    options: [
+      "Yes, I do. I like bananas!",
+      "No, I don't. I don't like bananas.",
+      "Yes, I do. I don't like bananas."
+    ],
+    correct: 0,
+    listen: "Do you like bananas? Yes, I do. I like bananas!",
+    note: "Say the whole sentence out loud: \"Yes, I do. I like bananas!\""
+  },
+  {
+    set: "dialog",
+    q: "Mia's mom doesn't like mangoes 🥭. You ask her: \"Do you like mangoes?\" What does she say?",
+    options: [
+      "No, I don't. I don't like mangoes.",
+      "Yes, I do. I like mangoes!",
+      "Yes, I do. I don't like mangoes."
+    ],
+    correct: 0,
+    listen: "Do you like mangoes? No, I don't. I don't like mangoes.",
+    note: "Say the whole sentence out loud: \"No, I don't. I don't like mangoes.\""
   },
 
-  // --- Canning ---
+  // --- Set: polite (Can I have…? / Would you like…?) ---
   {
-    q: "Cans 🥫 keep food good for a very long time. Which food can be sealed in a can?",
-    options: ["🫘 Beans", "🍦 Ice cream", "🦑 Dried squid"],
+    set: "polite",
+    q: "Mia wants some chocolate 🍫. What does she say?",
+    options: [
+      "Can I have some chocolate, please?",
+      "Give me chocolate!",
+      "I want chocolate now!"
+    ],
     correct: 0,
-    note: "Beans, fish and fruits can be canned. The tight can keeps them good for months!"
+    listen: "Can I have some chocolate, please?",
+    note: "Asking with \"Can I have…, please?\" is polite. Always say 'please'!"
   },
   {
-    q: "On a picnic 🧺 Mia packs canned beans 🫘 and fresh milk 🥛. Which one stays good even WITHOUT a fridge?",
-    options: ["🫘 The canned beans", "🥛 The fresh milk", "🍦 An ice cream"],
+    set: "polite",
+    q: "Mia asks nicely, so Mom gives her the chocolate 🍫. What does Mom say?",
+    options: ["Here you are.", "No, thank you.", "Yes, please."],
     correct: 0,
-    note: "Canned beans stay good without a fridge. Milk and ice cream must stay cold!"
+    listen: "Here you are.",
+    note: "When someone gives you something, they say: \"Here you are.\""
+  },
+  {
+    set: "polite",
+    q: "Mom asks: \"Would you like some ice cream 🍦?\" Mia wants it. What does Mia say?",
+    options: ["Yes, please.", "No, thank you.", "Here you are."],
+    correct: 0,
+    listen: "Would you like some ice cream? Yes, please.",
+    note: "Say \"Yes, please\" when you want it. That's polite!"
+  },
+  {
+    set: "polite",
+    q: "Mom asks: \"Would you like some ice cream 🍦?\" Mia doesn't want it. What does Mia say?",
+    options: ["No, thank you.", "Yes, please.", "Here you are."],
+    correct: 0,
+    listen: "Would you like some ice cream? No, thank you.",
+    note: "\"No, thank you\" is a polite way to say no."
+  },
+  {
+    set: "polite",
+    q: "Mia wants bread 🍞. Which is the POLITE way to ask?",
+    options: [
+      "Can I have some bread, please?",
+      "Can I have some bread.",
+      "I want bread."
+    ],
+    correct: 0,
+    listen: "Can I have some bread, please?",
+    note: "Always add 'please' when you ask for something!"
+  },
+  {
+    set: "polite",
+    q: "Tom asks: \"Can I have some orange juice 🍊, please?\" What does Mom say?",
+    options: ["Here you are.", "Yes, I do.", "I like it."],
+    correct: 0,
+    listen: "Can I have some orange juice, please? Here you are.",
+    note: "After \"Can I have…?\", the answer is \"Here you are.\""
+  },
+  {
+    set: "polite",
+    q: "Grandpa asks: \"Would you like some sausage 🌭?\" Tom is very hungry. What does Tom say?",
+    options: ["Yes, please.", "No, thank you.", "Here you are."],
+    correct: 0,
+    listen: "Would you like some sausage? Yes, please.",
+    note: "\"Yes, please\" — Tom wants the sausage!"
+  },
+  {
+    set: "polite",
+    q: "Auntie asks: \"Would you like some lemonade 🥤?\" Mia doesn't want any. What does Mia say?",
+    options: ["No, thank you.", "Yes, please.", "Here you are."],
+    correct: 0,
+    listen: "Would you like some lemonade? No, thank you.",
+    note: "\"No, thank you\" is a polite way to say no."
   }
 ];
 
 /* =========================================================
-   Rendering + scoring logic (do not edit unless asked)
+   Session builder: random sampling + shuffling
+   ---------------------------------------------------------
+   Every run (fresh load or Try Again) reshuffles the pool
+   of each set, takes `count` questions, and shuffles the
+   answer options. Retries therefore always differ.
    ========================================================= */
 
-let idx = 0;
-let score = 0;
-let answered = false;
+function shuffle(arr){
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+
+function buildSession(){
+  return QUIZ_SETUP.sets.map(function (set) {
+    const pool = QUIZ_DATA.filter(function (q) { return q.set === set.id; });
+    const picked = shuffle(pool.slice()).slice(0, set.count);
+    const questions = picked.map(function (q) {
+      const order = shuffle(q.options.map(function (_, i) { return i; }));
+      return Object.assign({}, q, {
+        options: order.map(function (i) { return q.options[i]; }),
+        correct: order.indexOf(q.correct)
+      });
+    });
+    return { set: set, questions: questions };
+  });
+}
+
+/* =========================================================
+   Rendering + scoring logic
+   ========================================================= */
 
 const qtext = document.getElementById("qtext");
 const promptEl = document.getElementById("prompt");
@@ -317,9 +642,59 @@ const feedbackNote = document.getElementById("feedbackNote");
 const nextBtn = document.getElementById("nextBtn");
 const progressFill = document.getElementById("progressFill");
 const qnumEl = document.getElementById("qnum");
+const subtitleEl = document.getElementById("subtitle");
 const quizCard = document.getElementById("quizCard");
+const setIntro = document.getElementById("setIntro");
 const scoreScreen = document.getElementById("scoreScreen");
 
+let session = [];
+let si = 0;      // current set index
+let qi = 0;      // current question index within set
+let scores = []; // correct count per set
+let currentListen = "";
+
+function totalQuestions(){
+  return session.reduce(function (n, s) { return n + s.questions.length; }, 0);
+}
+function globalIndex(){
+  let n = 0;
+  for (let i = 0; i < si; i++) n += session[i].questions.length;
+  return n + qi;
+}
+function totalScore(){
+  return scores.reduce(function (a, b) { return a + b; }, 0);
+}
+
+/* ---------- Listen (SpeechSynthesis, native & offline) ---------- */
+let cachedVoice = null;
+function enVoice(){
+  if (cachedVoice || !("speechSynthesis" in window)) return cachedVoice;
+  const vs = speechSynthesis.getVoices();
+  cachedVoice = vs.find(function (v) { return /^en[-_](US|GB)/i.test(v.lang); })
+    || vs.find(function (v) { return v.lang.toLowerCase().startsWith("en"); })
+    || null;
+  return cachedVoice;
+}
+function speak(text){
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 0.85;
+  const v = enVoice();
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+if ("speechSynthesis" in window) {
+  try { speechSynthesis.addEventListener("voiceschanged", enVoice); } catch (e) {}
+  enVoice();
+}
+
+document.getElementById("listenBtn").addEventListener("click", function () {
+  if (currentListen) speak(currentListen);
+});
+
+/* ---------- Question rendering ---------- */
 function shapeHTML(s){
   if (s.t === "emoji") {
     const size = 44 * (s.s || 2);
@@ -330,17 +705,21 @@ function shapeHTML(s){
 
 function render(){
   answered = false;
-  const q = QUIZ_DATA[idx];
-  qnumEl.textContent = "Question " + (idx + 1) + " of " + QUIZ_DATA.length;
-  progressFill.style.width = (idx / QUIZ_DATA.length * 100) + "%";
+  const s = session[si];
+  const q = s.questions[qi];
+  const total = totalQuestions();
+  subtitleEl.textContent = s.set.emoji + " " + s.set.name;
+  qnumEl.textContent = "Question " + (globalIndex() + 1) + " of " + total;
+  progressFill.style.width = (globalIndex() / total * 100) + "%";
   qtext.textContent = q.q;
+  currentListen = q.listen || q.q;
 
   promptEl.innerHTML = "";
   if (q.prompt) {
-    q.prompt.forEach(function (s) {
+    q.prompt.forEach(function (s2) {
       promptEl.insertAdjacentHTML("beforeend",
-        '<div class="prompt-item">' + shapeHTML(s) +
-        (s.label ? '<div class="prompt-label">' + s.label + "</div>" : "") + "</div>");
+        '<div class="prompt-item">' + shapeHTML(s2) +
+        (s2.label ? '<div class="prompt-label">' + s2.label + "</div>" : "") + "</div>");
     });
   }
 
@@ -364,12 +743,14 @@ function render(){
   nextBtn.classList.remove("show");
 }
 
+let answered = false;
+
 function handle(i){
   if (answered) return;
   answered = true;
-  const q = QUIZ_DATA[idx];
+  const q = session[si].questions[qi];
   const right = i === q.correct;
-  if (right) score++;
+  if (right) scores[si]++;
 
   optionsEl.classList.add("locked");
   Array.prototype.forEach.call(optionsEl.children, function (b, bi) {
@@ -382,40 +763,91 @@ function handle(i){
   feedbackHead.textContent = right ? "Great job! 🎉" : "Good try! 💪";
   feedbackNote.textContent = q.note;
 
-  const last = idx === QUIZ_DATA.length - 1;
+  const last = globalIndex() === totalQuestions() - 1;
   nextBtn.textContent = last ? "See my score 🏆" : "Next ➡️";
   nextBtn.classList.add("show");
-  progressFill.style.width = ((idx + 1) / QUIZ_DATA.length * 100) + "%";
+  progressFill.style.width = ((globalIndex() + 1) / totalQuestions() * 100) + "%";
 }
 
-function showScore(){
+/* ---------- Set intro ---------- */
+function showSetIntro(i){
   quizCard.style.display = "none";
-  scoreScreen.classList.add("show");
-  const pct = score / QUIZ_DATA.length;
-  document.getElementById("stars").textContent = pct >= 0.9 ? "⭐⭐⭐" : pct >= 0.6 ? "⭐⭐" : "⭐";
-  document.getElementById("scoreTitle").textContent = pct === 1 ? "Perfect! 🎉" : pct >= 0.6 ? "Good work! 👍" : "Keep practicing! 🌱";
-  document.getElementById("scoreText").textContent = score + " out of " + QUIZ_DATA.length + " correct";
-  document.getElementById("scoreSub").textContent = score === QUIZ_DATA.length
-    ? "You know all about food preservation!"
-    : "Ask a grown-up to read the notes, then try again!";
+  scoreScreen.classList.remove("show");
+  setIntro.classList.add("show");
+  const s = session[i];
+  document.getElementById("setIntroEmoji").textContent = s.set.emoji;
+  document.getElementById("setIntroName").textContent = s.set.name;
+  document.getElementById("setIntroSub").textContent =
+    (i === 0 ? "Let's practice " : "Next up: ") + s.set.name.toLowerCase() +
+    " — " + s.questions.length + " questions!";
 }
 
-function restart(){
-  idx = 0;
-  score = 0;
-  scoreScreen.classList.remove("show");
+document.getElementById("startSetBtn").addEventListener("click", function () {
+  setIntro.classList.remove("show");
   quizCard.style.display = "flex";
   render();
+});
+
+/* ---------- Score screen ---------- */
+function showScore(){
+  quizCard.style.display = "none";
+  setIntro.classList.remove("show");
+  scoreScreen.classList.add("show");
+  const total = totalQuestions();
+  const got = totalScore();
+  const pct = got / total;
+  document.getElementById("stars").textContent = pct >= 0.9 ? "⭐⭐⭐" : pct >= 0.6 ? "⭐⭐" : "⭐";
+  document.getElementById("scoreTitle").textContent = pct === 1 ? "Perfect! 🎉" : pct >= 0.6 ? "Good work! 👍" : "Keep practicing! 🌱";
+  document.getElementById("scoreText").textContent = got + " out of " + total + " correct";
+
+  const res = document.getElementById("setResults");
+  res.innerHTML = "";
+  session.forEach(function (s, i) {
+    const sc = scores[i];
+    const row = document.createElement("div");
+    row.className = "set-result";
+    row.innerHTML =
+      '<span>' + s.set.emoji + " " + s.set.name + "</span>" +
+      '<span class="stars">' + "⭐".repeat(sc) + "☆".repeat(s.questions.length - sc) + "</span>" +
+      "<span>" + sc + "/" + s.questions.length + "</span>";
+    res.appendChild(row);
+  });
+
+  document.getElementById("scoreSub").textContent =
+    pct === 1
+      ? "You know all about foods and friends!"
+      : "Ask a grown-up to read the notes, then try again!";
 }
 
+/* ---------- Navigation & restart ---------- */
 nextBtn.addEventListener("click", function () {
-  idx++;
-  if (idx >= QUIZ_DATA.length) showScore();
-  else render();
+  qi++;
+  if (qi >= session[si].questions.length) {
+    qi = 0;
+    si++;
+    if (si >= session.length) showScore();
+    else showSetIntro(si);
+  } else {
+    render();
+  }
 });
+
+function restart(){
+  session = buildSession();
+  si = 0;
+  qi = 0;
+  scores = session.map(function () { return 0; });
+  scoreScreen.classList.remove("show");
+  quizCard.style.display = "none";
+  setIntro.classList.remove("show");
+  showSetIntro(0);
+}
+
 document.getElementById("tryAgain").addEventListener("click", restart);
 
-render();
+/* ---------- Boot ---------- */
+document.title = QUIZ_SETUP.title;
+restart();
 </script>
 </body>
 </html>
