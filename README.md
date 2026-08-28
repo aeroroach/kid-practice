@@ -17,7 +17,7 @@ To ensure maximum compatibility with Vercel and effortless file transfers, the e
 1. **Single File Only**: Everything must live inside `index.html`. Do not generate external `.css` or `.js` files.
 2. **Offline Capable**: Avoid external dependencies (like heavy front-end frameworks or external fonts). Use native Web APIs and standard semantic HTML5.
 3. **Data Isolation**: The quiz questions must be stored in a clean, clearly commented JavaScript array named `QUIZ_DATA` at the top of the `<script>` tag. Options may be plain strings or `{ label, shape: { t: "emoji", e: "🌳", s: 1-3 } }` objects for emoji graphics. This allows easy topical rewrites without touching the UI rendering logic.
-4. **Practice Sets & Question Pool**: `QUIZ_DATA` is a *pool* of questions, each tagged with a `set` id (spelling, grammar, dialog, polite, etc.). A `QUIZ_SETUP` object next to it defines the set order and how many questions each set samples. Each run (fresh load or "Try Again") randomly samples and shuffles the pool, so **retries always present different questions**. Per-question `listen` text feeds the 🔊 Listen button (native SpeechSynthesis, offline).
+4. **Practice Sets & Question Pool**: `QUIZ_DATA` is a *pool* of questions, each tagged with a `set` id (spelling, grammar, dialog, polite, etc.). A `QUIZ_SETUP` object next to it defines the set order and how many questions each set samples. Each run (fresh load or "Try Again") randomly samples and shuffles the pool, so **retries always present different questions**. The 🔊 Listen button (native SpeechSynthesis, offline) appears **only on questions carrying a `listen` field** — typically spelling words — so it never reads blanks (___), nor reveals answers on dialog questions.
 
 ---
 
