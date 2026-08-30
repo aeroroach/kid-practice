@@ -649,8 +649,8 @@ const QUIZ_DATA = [
     set: "reading",
     type: "find",
     para: "How to make an omelette 🍳\n1. You need two eggs, some cheese, an onion and some tomatoes.\n2. Mix the eggs. Cut the onion and the tomatoes.\n3. Cook the eggs for four minutes.\n4. Put the cheese, onion and tomato on the eggs.\n5. Fold the omelette and cook it for one more minute.",
-    foods: ["omelette", "eggs", "cheese", "onion", "tomatoes"],
-    note: "You found all the food words! Eggs, cheese, onion, tomatoes and the omelette itself are all food."
+    foods: ["omelette", "eggs", "cheese", "onion", "tomato", "tomatoes"],
+    note: "You found all the food words! Eggs, cheese, onion, tomato and the omelette itself are all food."
   },
   {
     set: "reading",
@@ -869,6 +869,10 @@ function buildFindStory(q){
       return;
     }
     const clean = tok.toLowerCase().replace(/[^a-z']/g, "");
+    if (!clean) {
+      text.appendChild(document.createTextNode(tok));
+      return;
+    }
     const btn = document.createElement("button");
     btn.className = "wchip";
     btn.textContent = tok;
