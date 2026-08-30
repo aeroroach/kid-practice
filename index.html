@@ -142,6 +142,54 @@
   .shape{display:flex;flex-direction:column;align-items:center}
   .shape.emoji{line-height:1;filter:drop-shadow(0 3px 2px rgba(38,70,83,.15))}
 
+  /* ---------- Story box (find-type questions) ---------- */
+  .story{display:none;flex-direction:column;gap:16px}
+  .story.show{display:flex}
+  .story-counter{
+    align-self:center;
+    background:#fff7e0;
+    border-radius:999px;
+    padding:10px 24px;
+    font-size:20px;
+    font-weight:800;
+    box-shadow:0 3px 0 rgba(38,70,83,.12);
+  }
+  .story-text{
+    background:#fdf6ec;
+    border:3px dashed #f5c95c;
+    border-radius:16px;
+    padding:20px;
+    font-size:24px;
+    line-height:2.1;
+    text-align:left;
+    white-space:pre-line;
+  }
+  .wchip{
+    appearance:none;
+    border:none;
+    background:transparent;
+    color:var(--ink);
+    font-family:inherit;
+    font-size:24px;
+    font-weight:700;
+    border-bottom:3px dotted #f5c95c;
+    border-radius:10px;
+    padding:4px 8px;
+    margin:2px;
+    min-height:48px;
+    cursor:pointer;
+    vertical-align:middle;
+  }
+  .wchip:active{transform:scale(.95)}
+  .wchip.found{background:var(--correct);color:#fff;border-bottom:none}
+  .wchip.miss{background:var(--wrong);color:#fff;border-bottom:none}
+  .wchip.shake{animation:shake .3s ease}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-5px)}
+    75%{transform:translateX(5px)}
+  }
+
   /* ---------- Feedback ---------- */
   .feedback{
     min-height:70px;
@@ -230,6 +278,10 @@
     <div class="question" id="qtext"></div>
     <div class="listen-wrap" id="listenWrap"><button class="listen" id="listenBtn">🔊 Listen</button></div>
     <div class="prompt" id="prompt"></div>
+    <div class="story" id="storyBox">
+      <div class="story-counter" id="storyCounter"></div>
+      <div class="story-text" id="storyText"></div>
+    </div>
     <div class="options" id="options"></div>
     <div class="feedback" id="feedback">
       <div id="feedbackHead"></div>
@@ -272,12 +324,13 @@ const QUIZ_SETUP = {
     { id: "spelling", name: "Spelling", emoji: "🔤", count: 5 },
     { id: "grammar",  name: "Like & Likes", emoji: "🧩", count: 5 },
     { id: "dialog",   name: "Do you like…?", emoji: "🗣️", count: 4 },
-    { id: "polite",   name: "Can I have…?", emoji: "🎈", count: 5 }
+    { id: "polite",   name: "Can I have…?", emoji: "🎈", count: 5 },
+    { id: "reading",  name: "Recipe Words", emoji: "📖", count: 2 }
   ]
 };
 
 /* =========================================================
-   QUIZ_DATA - question pool (32 questions, 4 sets)
+   QUIZ_DATA - question pool (35 questions, 5 sets)
    ---------------------------------------------------------
    Each question object:
    - set     : which practice set it belongs to
@@ -292,6 +345,12 @@ const QUIZ_SETUP = {
                hidden on all other questions.
    - note    : short learning line shown after answering
    - prompt  : optional shapes shown above the options
+   - type    : optional interaction type. "find" questions
+               (Recipe Words set) have no options/correct —
+               instead they show a full paragraph (para) where
+               every food word in `foods` is a tappable chip.
+               The kid taps all food words to complete the
+               round; scored correct if mistakes are <= 2.
    Spelling set: the emoji is the picture cue; the Listen
    button speaks the word so the kid hears it, then picks
    the correctly spelled option (misspellings sound alike,
@@ -583,6 +642,29 @@ const QUIZ_DATA = [
     options: ["No, thank you.", "Yes, please.", "Here you are."],
     correct: 0,
     note: "\"No, thank you\" is a polite way to say no."
+  },
+
+  // --- Set: reading (find-type: tap the food words) ---
+  {
+    set: "reading",
+    type: "find",
+    para: "How to make an omelette 🍳\n1. You need two eggs, some cheese, an onion and some tomatoes.\n2. Mix the eggs. Cut the onion and the tomatoes.\n3. Cook the eggs for four minutes.\n4. Put the cheese, onion and tomato on the eggs.\n5. Fold the omelette and cook it for one more minute.",
+    foods: ["omelette", "eggs", "cheese", "onion", "tomatoes"],
+    note: "You found all the food words! Eggs, cheese, onion, tomatoes and the omelette itself are all food."
+  },
+  {
+    set: "reading",
+    type: "find",
+    para: "This is a monster sandwich 🥪. It's got chicken, cheese, meat and salad. Yum!",
+    foods: ["sandwich", "chicken", "cheese", "meat", "salad"],
+    note: "You found all the food words! Monster is NOT a food word — it tells us the sandwich is very big!"
+  },
+  {
+    set: "reading",
+    type: "find",
+    para: "How to make pancakes 🥞\n1. Mix flour, milk and eggs in a bowl.\n2. Cook the mix in a pan for two minutes.\n3. Flip the pancake.\n4. Put some banana and syrup on top. Yum!",
+    foods: ["pancakes", "flour", "milk", "eggs", "pancake", "banana", "syrup"],
+    note: "You found all the food words! Mix, cook and flip are actions, not food!"
   }
 ];
 
@@ -607,6 +689,7 @@ function buildSession(){
     const pool = QUIZ_DATA.filter(function (q) { return q.set === set.id; });
     const picked = shuffle(pool.slice()).slice(0, set.count);
     const questions = picked.map(function (q) {
+      if (q.type === "find") return q;
       const order = shuffle(q.options.map(function (_, i) { return i; }));
       return Object.assign({}, q, {
         options: order.map(function (i) { return q.options[i]; }),
@@ -632,6 +715,7 @@ const progressFill = document.getElementById("progressFill");
 const qnumEl = document.getElementById("qnum");
 const subtitleEl = document.getElementById("subtitle");
 const listenWrap = document.getElementById("listenWrap");
+const storyBox = document.getElementById("storyBox");
 const quizCard = document.getElementById("quizCard");
 const setIntro = document.getElementById("setIntro");
 const scoreScreen = document.getElementById("scoreScreen");
@@ -700,7 +784,7 @@ function render(){
   subtitleEl.textContent = s.set.emoji + " " + s.set.name;
   qnumEl.textContent = "Question " + (globalIndex() + 1) + " of " + total;
   progressFill.style.width = (globalIndex() / total * 100) + "%";
-  qtext.textContent = q.q;
+  qtext.textContent = q.type === "find" ? "Tap all the food words! 🍽️" : q.q;
   currentListen = q.listen || "";
   listenWrap.style.display = q.listen ? "flex" : "none";
 
@@ -713,20 +797,27 @@ function render(){
     });
   }
 
-  optionsEl.className = "options" + (q.options.some(function (o) { return typeof o !== "string"; }) ? " grid" : "");
   optionsEl.innerHTML = "";
-  q.options.forEach(function (o, i) {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    if (typeof o === "string") {
-      btn.textContent = o;
-    } else {
-      btn.insertAdjacentHTML("beforeend", '<span class="opt-shape">' + shapeHTML(o.shape) + "</span>");
-      btn.insertAdjacentHTML("beforeend", '<span class="opt-label">' + o.label + "</span>");
-    }
-    btn.addEventListener("click", function () { handle(i); });
-    optionsEl.appendChild(btn);
-  });
+  if (q.type === "find") {
+    optionsEl.className = "options";
+    storyBox.classList.add("show");
+    buildFindStory(q);
+  } else {
+    storyBox.classList.remove("show");
+    optionsEl.className = "options" + (q.options.some(function (o) { return typeof o !== "string"; }) ? " grid" : "");
+    q.options.forEach(function (o, i) {
+      const btn = document.createElement("button");
+      btn.className = "option";
+      if (typeof o === "string") {
+        btn.textContent = o;
+      } else {
+        btn.insertAdjacentHTML("beforeend", '<span class="opt-shape">' + shapeHTML(o.shape) + "</span>");
+        btn.insertAdjacentHTML("beforeend", '<span class="opt-label">' + o.label + "</span>");
+      }
+      btn.addEventListener("click", function () { handle(i); });
+      optionsEl.appendChild(btn);
+    });
+  }
 
   feedbackEl.className = "feedback";
   feedbackEl.classList.remove("show");
@@ -752,6 +843,72 @@ function handle(i){
   feedbackEl.classList.add("show", right ? "good" : "bad");
   feedbackHead.textContent = right ? "Great job! 🎉" : "Good try! 💪";
   feedbackNote.textContent = q.note;
+
+  const last = globalIndex() === totalQuestions() - 1;
+  nextBtn.textContent = last ? "See my score 🏆" : "Next ➡️";
+  nextBtn.classList.add("show");
+  progressFill.style.width = ((globalIndex() + 1) / totalQuestions() * 100) + "%";
+}
+
+/* ---------- Find-type questions (tap the food words) ---------- */
+let findState = null;
+
+function buildFindStory(q){
+  const foodSet = {};
+  q.foods.forEach(function (f) { foodSet[f.toLowerCase()] = true; });
+  findState = { foodSet: foodSet, found: 0, total: q.foods.length, mistakes: 0, done: false, tapped: {} };
+
+  document.getElementById("storyCounter").textContent =
+    "Found 0 of " + findState.total + " 🍽️";
+
+  const text = document.getElementById("storyText");
+  text.innerHTML = "";
+  q.para.split(/(\s+)/).forEach(function (tok) {
+    if (/^\s+$/.test(tok)) {
+      text.appendChild(document.createTextNode(tok));
+      return;
+    }
+    const clean = tok.toLowerCase().replace(/[^a-z']/g, "");
+    const btn = document.createElement("button");
+    btn.className = "wchip";
+    btn.textContent = tok;
+    btn.addEventListener("click", function () { tapWord(btn, clean); });
+    text.appendChild(btn);
+  });
+}
+
+function updateFindCounter(){
+  document.getElementById("storyCounter").textContent =
+    "Found " + findState.found + " of " + findState.total + " 🍽️" +
+    (findState.mistakes ? "   ✖ " + findState.mistakes : "");
+}
+
+function tapWord(btn, clean){
+  if (findState.done) return;
+  if (findState.tapped[clean]) return;
+  findState.tapped[clean] = true;
+
+  if (findState.foodSet[clean]) {
+    btn.classList.add("found");
+    findState.found++;
+    updateFindCounter();
+    if (findState.found === findState.total) finishFind();
+  } else {
+    btn.classList.add("miss", "shake");
+    findState.mistakes++;
+    updateFindCounter();
+  }
+}
+
+function finishFind(){
+  findState.done = true;
+  const q = session[si].questions[qi];
+  const right = findState.mistakes <= 2;
+  if (right) scores[si]++;
+
+  feedbackEl.classList.add("show", right ? "good" : "bad");
+  feedbackHead.textContent = right ? "You found all the food words! 🎉" : "Good try! 💪";
+  feedbackNote.textContent = q.note + (findState.mistakes ? " (" + findState.mistakes + " mistakes)" : "");
 
   const last = globalIndex() === totalQuestions() - 1;
   nextBtn.textContent = last ? "See my score 🏆" : "Next ➡️";
